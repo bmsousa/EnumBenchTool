@@ -114,7 +114,8 @@ class Client (object):
             
 
         # Verifying if the answers are ok.
-        if (self.status == ['autho-exist', 'autho-non-exist', 'non-autho-non-exist']):            
+        #if (self.status == ['autho-exist', 'autho-non-exist', 'non-autho-non-exist']):
+        if (self.status == ['autho-exist', 'autho-exist', 'autho-exist']):
             self.s.sendto('client 200 OK', self.addr)
             self.write_to_log('done!\n')
             return True
@@ -130,22 +131,28 @@ class Client (object):
         f = open (self.paths['TEMP_FOLDER_PATH'] + 'dig-output.dat')
         for line in f:
             if line.startswith(';; flags:'):
-                if line.split()[3] == 'aa':
-                    if (int(line.split()[8][:-1])):
-                        self.status.append('autho-exist')
-                    else:
-                        if (int(line.split()[10][:-1])):
-                            self.status.append('autho-non-exist')
-                        else:
-                            self.status.append('non-autho-non-exist')
+                num_aux = int(line.split()[10][:-1])
+                # if line.split()[3] == 'aa':
+                if (num_aux == 1):
+                    self.status.append('autho-exist')
                 else:
-                    if (int(line.split()[7][:-1])):
-                        self.status.append('autho-exist')
-                    else:
-                        if (int(line.split()[9][:-1])):
-                            self.status.append('autho-non-exist')
-                        else:
-                            self.status.append('non-autho-non-exist')
+                    self.status.append('autho-non-exist')
+                # if line.split()[3] == 'aa':
+                #     if (int(line.split()[8][:-1])):
+                #         self.status.append('autho-exist')
+                #     else:
+                #         if (int(line.split()[10][:-1])):
+                #             self.status.append('autho-non-exist')
+                #         else:
+                #             self.status.append('non-autho-non-exist')
+                # else:
+                #     if (int(line.split()[7][:-1])):
+                #         self.status.append('autho-exist')
+                #     else:
+                #         if (int(line.split()[9][:-1])):
+                #             self.status.append('autho-non-exist')
+                #         else:
+                #             self.status.append('non-autho-non-exist')
 #------------------------------------------------------------------------------ 
     def run (self):
         """ Is the function that receives the instructions from 'master' and calls the correspondent process"""
@@ -196,13 +203,13 @@ class Client (object):
                     output_file = open(self.paths['TEMP_FOLDER_PATH'] + 'dnsperf-output-' + str(i) + '.dat', 'w')
                     Popen(['dnsperf', '-s', self.setup_tool.get_server_ip_qry(), '-d',
                            self.paths['QUERY_FILES_FOLDER_PATH'] + self.query_file + '-' + str(i) + '.dat',
-                           '-l', self.setup_tool.get_limit(), '-q', num_clients_per_process, '-H', '10', '-T', '1', '-c'],
+                           '-l', self.setup_tool.get_limit(), '-c', num_clients_per_process],
                           stdout=output_file)
                 else:
                     output_file = open(self.paths['TEMP_FOLDER_PATH'] + 'dnsperf-output-' + str(i) + '.dat', 'w')
                     Popen(['dnsperf', '-s', self.setup_tool.get_server_ip_qry(), '-d',
                            self.paths['QUERY_FILES_FOLDER_PATH'] + self.query_file + '-' + str(i) + '.dat',
-                           '-l', self.setup_tool.get_limit(), '-q', num_clients_per_process, '-H', '10', '-T', '1', '-c'],
+                           '-l', self.setup_tool.get_limit(), '-c', num_clients_per_process],
                           stdout=output_file)
         else:
             num_clients_per_process = '1'
@@ -211,8 +218,8 @@ class Client (object):
                 output_file = open(self.paths['TEMP_FOLDER_PATH'] + 'dnsperf-output-' + str(i) + '.dat', 'w')
                 Popen(['dnsperf', '-s', self.setup_tool.get_server_ip_qry(), '-d',
                        self.paths['QUERY_FILES_FOLDER_PATH'] + self.query_file + '-' + str(i) + '.dat',
-                       '-l', self.setup_tool.get_limit(), '-q', num_clients_per_process, '-H', '10', '-T', '1', '-c'],
-                      stdout=output_file)            
+                       '-l', self.setup_tool.get_limit(), '-c', num_clients_per_process],
+                      stdout=output_file)
             
         self.write_to_log('\tdone!\n')
         
